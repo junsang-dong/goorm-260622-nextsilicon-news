@@ -1,0 +1,21 @@
+.wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  background: #FFF5F5;
+  border: 1px solid #FEB2B2;
+  border-radius: var(--radius-md);
+  color: #C53030;
+}
+
+.icon {
+  font-size: var(--font-size-lg);
+  flex-shrink: 0;
+}
+
+.text {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+}
