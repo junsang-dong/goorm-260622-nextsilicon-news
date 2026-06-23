@@ -1,3 +1,4 @@
+import LikeButton from "../LikeButton/LikeButton";
 import styles from "./NewsCard.module.css";
 
 function timeAgo(date) {
@@ -12,7 +13,10 @@ function truncate(text, max) {
   return text.length > max ? text.slice(0, max) + "..." : text;
 }
 
-export default function NewsCard({ article }) {
+// onPublish: Editor가 검색 결과를 DB에 게시
+// onDelete: Editor가 DB에서 삭제
+// likeKey: Reader용 Like 버튼 식별자 (DB card id)
+export default function NewsCard({ article, onPublish, onDelete, likeKey }) {
   const { title, description, url, source, publishedAt, urlToImage } = article;
 
   return (
@@ -35,14 +39,29 @@ export default function NewsCard({ article }) {
         </div>
         <h3 className={styles.title}>{title}</h3>
         <p className={styles.description}>{truncate(description, 150)}</p>
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.link}
-        >
-          원문 보기 →
-        </a>
+        <div className={styles.footer}>
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.link}
+          >
+            원문 보기 →
+          </a>
+          <div className={styles.actions}>
+            {onPublish && (
+              <button className={styles.publishBtn} onClick={onPublish}>
+                + 게시
+              </button>
+            )}
+            {onDelete && (
+              <button className={styles.deleteBtn} onClick={onDelete}>
+                삭제
+              </button>
+            )}
+            {likeKey && <LikeButton itemKey={`card_${likeKey}`} />}
+          </div>
+        </div>
       </div>
     </article>
   );

@@ -109,6 +109,26 @@
   border-color: #326891;
 }
 
+.publishBtn {
+  background: #000;
+  color: #fff;
+}
+
+.publishBtn:hover {
+  background: #333 !important;
+  color: #fff !important;
+}
+
+.deleteBtn {
+  border-color: #c00;
+  color: #c00;
+}
+
+.deleteBtn:hover {
+  background: #c00 !important;
+  color: #fff !important;
+}
+
 /* ── Web view (rendered markdown) ── */
 .webView {
   color: var(--color-text-primary);

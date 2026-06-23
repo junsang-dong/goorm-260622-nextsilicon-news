@@ -18,6 +18,9 @@ AI 기반 주간 인텔리전스 서비스
 | AI 인사이트 | 웹뷰(마크다운 렌더링) / 마크다운 원문 토글 보기 |
 | 복사·다운로드 | 인사이트를 클립보드 복사 또는 `.md` 파일로 저장 |
 | 검색 히스토리 | localStorage 자동 저장 (최대 10건) |
+| **콘텐츠 게시 저장** | Editor가 게시한 카드뉴스·AI분석을 Neon DB에 저장 → 모든 방문자에게 기본 노출 |
+| **Editor 모드** | 비밀번호 인증 후 기사 검색·게시·삭제, AI분석 게시·삭제 가능 |
+| **Reader 모드** | 게시된 콘텐츠 열람 + Like 저장 (localStorage) |
 
 ---
 
@@ -43,6 +46,34 @@ npm run dev
 | Claude | https://console.anthropic.com/ | 사용량 기반 |
 | GPT | https://platform.openai.com/api-keys | 사용량 기반 |
 | Gemini | https://aistudio.google.com/app/apikey | 무료 티어 있음 |
+| Neon DB | https://neon.tech | 무료 (0.5GB) |
+
+---
+
+## Neon DB + Editor 모드 설정
+
+### 1. Neon DB 연결 설정
+1. [neon.tech](https://neon.tech) 에서 프로젝트 생성
+2. Dashboard → Connection string 복사 (postgresql://…)
+3. `.env` 파일에 입력:
+   ```
+   DATABASE_URL=postgresql://user:password@host/dbname
+   EDITOR_PASSWORD=원하는비밀번호
+   ```
+4. Vercel 대시보드 → Environment Variables에 동일하게 등록
+
+> 테이블(`news_cards`, `ai_analyses`)은 첫 API 호출 시 자동 생성됩니다.
+
+### 2. 로컬 개발 (DB 기능 포함)
+```bash
+npm install -g vercel   # 최초 1회
+vercel dev              # 프론트 + 서버리스 함수 통합 실행
+```
+
+### 3. Editor 로그인
+- 배포된 웹사이트 하단 Footer의 빈 공간(숨겨진 "Editor" 버튼)을 클릭
+- 설정한 `EDITOR_PASSWORD` 입력
+- Editor 모드 진입 → 기사 검색·게시, AI분석 게시 가능
 
 ---
 
@@ -135,6 +166,7 @@ headers: {
 | v2.1 | 2026-06-23 | Old English 세리프 로고 이미지 적용, `---` 웹뷰 렌더링 수정, max_tokens 4096으로 증가 |
 | v2.2 | 2026-06-23 | 로고 v1 교체, 모듈 순서 변경(뉴스→AI분석), AI분석 간격 축소, 푸터 추가 |
 | v2.3 | 2026-06-23 | Vercel 배포 환경 NewsAPI 426 오류 수정 (서버리스 함수 프록시 도입) |
+| v3.0 | 2026-06-23 | Editor/Reader 회원관리 시스템, Neon DB 콘텐츠 저장·게시, Like 기능 추가 |
 
 ---
 
@@ -143,7 +175,8 @@ headers: {
 ```
 goorm-260622-nextsilicon-news/
 ├── api/
-│   └── news.js                  # Vercel 서버리스 함수 (NewsAPI 프록시)
+│   ├── news.js                  # Vercel 서버리스 함수 (NewsAPI 프록시)
+│   └── content.js               # Vercel 서버리스 함수 (Neon DB CRUD)
 ├── src/
 │   ├── assets/
 │   │   └── logo.png             # Next Silicon News 로고
@@ -158,7 +191,10 @@ goorm-260622-nextsilicon-news/
 │   │   └── ErrorMessage/        # 오류 메시지
 │   ├── services/
 │   │   ├── newsApi.js           # NewsAPI 호출
-│   │   └── llmApi.js            # Claude / GPT / Gemini 통합 인터페이스
+│   │   ├── llmApi.js            # Claude / GPT / Gemini 통합 인터페이스
+│   │   └── contentApi.js        # Neon DB 콘텐츠 CRUD
+│   ├── contexts/
+│   │   └── AuthContext.jsx      # Editor/Reader 인증 상태
 │   ├── data/
 │   │   ├── presets.js           # 키워드 프리셋 정의
 │   │   └── prompts.js           # 직무별 LLM 프롬프트 빌더

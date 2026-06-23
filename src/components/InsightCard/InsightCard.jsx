@@ -1,4 +1,5 @@
 import { useState } from "react";
+import LikeButton from "../LikeButton/LikeButton";
 import styles from "./InsightCard.module.css";
 
 const LLM_LABELS = { claude: "Claude", gpt: "GPT-4o", gemini: "Gemini" };
@@ -10,7 +11,6 @@ const PROFILE_LABELS = {
   executive: "경영진",
 };
 
-// Lightweight markdown → HTML (handles the prompt template output)
 function renderMarkdown(text) {
   const lines = text.split("\n");
   const html = [];
@@ -30,16 +30,12 @@ function renderMarkdown(text) {
 
   for (const raw of lines) {
     const line = raw.trimEnd();
-
     if (/^---+$/.test(line.trim())) {
-      closeList();
-      html.push(`<hr/>`);
+      closeList(); html.push(`<hr/>`);
     } else if (/^## (.+)/.test(line)) {
-      closeList();
-      html.push(`<h2>${inlineFormat(line.replace(/^## /, ""))}</h2>`);
+      closeList(); html.push(`<h2>${inlineFormat(line.replace(/^## /, ""))}</h2>`);
     } else if (/^### (.+)/.test(line)) {
-      closeList();
-      html.push(`<h3>${inlineFormat(line.replace(/^### /, ""))}</h3>`);
+      closeList(); html.push(`<h3>${inlineFormat(line.replace(/^### /, ""))}</h3>`);
     } else if (/^- \[ \] (.+)/.test(line)) {
       if (!inUl) { html.push("<ul class='checklist'>"); inUl = true; }
       html.push(`<li><label><input type="checkbox" disabled /> ${inlineFormat(line.replace(/^- \[ \] /, ""))}</label></li>`);
@@ -50,19 +46,20 @@ function renderMarkdown(text) {
       if (!inOl) { html.push("<ol>"); inOl = true; }
       html.push(`<li>${inlineFormat(line.replace(/^\d+\. /, ""))}</li>`);
     } else if (line === "") {
-      closeList();
-      html.push("<br/>");
+      closeList(); html.push("<br/>");
     } else {
-      closeList();
-      html.push(`<p>${inlineFormat(line)}</p>`);
+      closeList(); html.push(`<p>${inlineFormat(line)}</p>`);
     }
   }
   closeList();
   return html.join("\n");
 }
 
-export default function InsightCard({ insight, llmName, profileName, generatedAt }) {
-  const [viewMode, setViewMode] = useState("web"); // "web" | "markdown"
+// onPublish: Editor가 현재 분석 결과를 DB에 저장
+// onDelete: Editor가 DB에서 분석 삭제
+// likeKey: Reader용 Like 키 (analysis DB id)
+export default function InsightCard({ insight, llmName, profileName, generatedAt, onPublish, onDelete, likeKey }) {
+  const [viewMode, setViewMode] = useState("web");
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
@@ -90,7 +87,6 @@ export default function InsightCard({ insight, llmName, profileName, generatedAt
 
   return (
     <div className={styles.card}>
-      {/* Header */}
       <div className={styles.cardHeader}>
         <div className={styles.left}>
           <span className={styles.badge}>{LLM_LABELS[llmName] || llmName}</span>
@@ -101,41 +97,42 @@ export default function InsightCard({ insight, llmName, profileName, generatedAt
         <div className={styles.right}>
           <span className={styles.time}>{timeStr}</span>
 
-          {/* View mode toggle */}
           <div className={styles.modeToggle}>
             <button
               className={`${styles.modeBtn} ${viewMode === "web" ? styles.modeBtnActive : ""}`}
               onClick={() => setViewMode("web")}
-            >
-              웹뷰
-            </button>
+            >웹뷰</button>
             <button
               className={`${styles.modeBtn} ${viewMode === "markdown" ? styles.modeBtnActive : ""}`}
               onClick={() => setViewMode("markdown")}
-            >
-              마크다운
-            </button>
+            >마크다운</button>
           </div>
 
-          {/* Action buttons */}
           <button
             className={`${styles.actionBtn} ${copied ? styles.copied : ""}`}
             onClick={handleCopy}
-            title="마크다운으로 복사"
-          >
-            {copied ? "✓ 복사됨" : "📋 복사"}
-          </button>
-          <button
-            className={styles.actionBtn}
-            onClick={handleDownload}
-            title="마크다운 파일 다운로드"
-          >
+          >{copied ? "✓ 복사됨" : "📋 복사"}</button>
+          <button className={styles.actionBtn} onClick={handleDownload}>
             ⬇ 다운로드
           </button>
+
+          {/* Editor: 게시 / 삭제 */}
+          {onPublish && (
+            <button className={`${styles.actionBtn} ${styles.publishBtn}`} onClick={onPublish}>
+              ✓ 게시
+            </button>
+          )}
+          {onDelete && (
+            <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={onDelete}>
+              삭제
+            </button>
+          )}
+
+          {/* Reader: Like */}
+          {likeKey && <LikeButton itemKey={`analysis_${likeKey}`} />}
         </div>
       </div>
 
-      {/* Content */}
       {viewMode === "web" ? (
         <div
           className={styles.webView}
