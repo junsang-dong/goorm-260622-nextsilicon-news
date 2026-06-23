@@ -1,4 +1,4 @@
-const BASE_URL = "https://newsapi.org/v2/everything";
+const BASE_URL = "/api/news";
 
 export async function fetchNews(query, options = {}) {
   const {
@@ -8,14 +8,11 @@ export async function fetchNews(query, options = {}) {
     from,
   } = options;
 
-  const apiKey = import.meta.env.VITE_NEWS_API_KEY;
-
   const params = new URLSearchParams({
     q: query,
     language,
     sortBy,
     pageSize: String(pageSize),
-    apiKey,
   });
 
   if (from) params.append("from", from);

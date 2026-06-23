@@ -68,6 +68,25 @@ npm run preview  # 빌드 결과 미리보기
 
 ## 트러블슈팅 기록
 
+### 3. NewsAPI 프로덕션 차단 — `426 Upgrade Required`
+
+**증상:** Vercel 배포 후 뉴스 수집 단계에서 `426 (Upgrade Required)` 오류  
+**원인:** NewsAPI 무료 플랜은 `localhost`에서의 브라우저 직접 호출만 허용. 배포 도메인에서 브라우저가 `newsapi.org`를 직접 호출하면 차단  
+**해결:** Vercel 서버리스 함수(`/api/news.js`)를 추가해 NewsAPI 호출을 서버 사이드로 이동. 개발 환경은 `vite.config.js` 프록시로 동일한 `/api/news` 경로를 처리
+
+```
+브라우저 → /api/news
+  ├── 개발(localhost): Vite 프록시 → newsapi.org (apiKey 서버에서 주입)
+  └── 배포(Vercel):   서버리스 함수 → newsapi.org (apiKey 환경변수에서 주입)
+```
+
+**변경 파일:**
+- `api/news.js` 신규 생성 (Vercel 서버리스 함수)
+- `src/services/newsApi.js` — `BASE_URL`을 `/api/news`로 변경, 클라이언트에서 apiKey 제거
+- `vite.config.js` — `/api/news` 프록시 추가 (`loadEnv`로 apiKey 서버 주입)
+
+> ⚠️ **Vercel 환경변수 설정 필요:** Vercel 대시보드에서 `VITE_NEWS_API_KEY` 환경변수가 등록되어야 서버리스 함수가 동작합니다.
+
 ### 1. LLM API CORS 오류 — `Failed to fetch`
 
 **증상:** 뉴스 수집은 성공, AI 분석에서 `Failed to fetch` 오류  
@@ -115,6 +134,7 @@ headers: {
 | v2.0 | 2026-06-23 | 브랜드명 변경 (SemiSignal → Next Silicon News), NYT 스타일 UI 전면 리디자인 |
 | v2.1 | 2026-06-23 | Old English 세리프 로고 이미지 적용, `---` 웹뷰 렌더링 수정, max_tokens 4096으로 증가 |
 | v2.2 | 2026-06-23 | 로고 v1 교체, 모듈 순서 변경(뉴스→AI분석), AI분석 간격 축소, 푸터 추가 |
+| v2.3 | 2026-06-23 | Vercel 배포 환경 NewsAPI 426 오류 수정 (서버리스 함수 프록시 도입) |
 
 ---
 
@@ -122,6 +142,8 @@ headers: {
 
 ```
 goorm-260622-nextsilicon-news/
+├── api/
+│   └── news.js                  # Vercel 서버리스 함수 (NewsAPI 프록시)
 ├── src/
 │   ├── assets/
 │   │   └── logo.png             # Next Silicon News 로고
