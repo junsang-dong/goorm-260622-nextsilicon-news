@@ -1,0 +1,74 @@
+:root {
+  --color-primary:    #000000;
+  --color-accent:     #326891;
+  --color-accent-dark:#1A4A6E;
+  --color-success:    #326891;
+  --color-warning:    #8E3B07;
+  --color-danger:     #CC0000;
+
+  --color-bg:         #FFFFFF;
+  --color-surface:    #FFFFFF;
+  --color-border:     #E2E2E2;
+  --color-border-dark:#000000;
+
+  --color-text-primary:   #121212;
+  --color-text-secondary: #666666;
+  --color-text-muted:     #999999;
+
+  --font-serif:   Georgia, 'Times New Roman', Times, 'Nanum Myeongjo', serif;
+  --font-sans:    'Helvetica Neue', Arial, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-family:  'Pretendard', 'Malgun Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --font-size-xs:   0.6875rem;
+  --font-size-sm:   0.8125rem;
+  --font-size-base: 0.9375rem;
+  --font-size-lg:   1.0625rem;
+  --font-size-xl:   1.25rem;
+  --font-size-2xl:  1.5rem;
+
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-12: 3rem;
+
+  --radius-sm:  0px;
+  --radius-md:  2px;
+  --radius-lg:  2px;
+  --shadow-sm:  none;
+  --shadow-md:  0 1px 4px rgba(0,0,0,0.12);
+  --transition: 0.15s ease;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  background: #F7F7F5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: var(--font-family);
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-family: var(--font-serif);
+}
+
+p {
+  margin: 0;
+}
